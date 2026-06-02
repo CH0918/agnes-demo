@@ -293,15 +293,16 @@ async function runVideo() {
       if (result.error) throw new Error(result.error.message || JSON.stringify(result.error));
 
       const status = result.status || result.state;
+      const progress = result.progress ?? 0;
       if (status === 'completed' || status === 'succeeded') break;
       if (status === 'failed' || status === 'error') throw new Error('视频生成失败: ' + JSON.stringify(result));
       
       const elapsed = ((Date.now() - t0) / 1000).toFixed(0);
-      setStatus('video-status', `<span class="video-poll-dot inline-block w-2 h-2 bg-yellow-400 rounded-full mr-1"></span>渲染中… ${elapsed}s`, true);
+      setStatus('video-status', `<span class="video-poll-dot inline-block w-2 h-2 bg-yellow-400 rounded-full mr-1"></span>渲染中… ${progress}% (${elapsed}s)`, true);
     }
 
     const ms = Date.now() - t0;
-    const videoUrl = result.url || result.output?.url || result.data?.url;
+    const videoUrl = result.url || result.output?.url || result.data?.url || result.remixed_from_video_id;
     if (!videoUrl) throw new Error('未返回视频 URL: ' + JSON.stringify(result));
 
     document.getElementById('video-output').src = videoUrl;
